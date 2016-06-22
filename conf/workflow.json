@@ -1,0 +1,71 @@
+{
+  "processes": [
+    {
+      "name": "run-cmd-openmp",
+      "function": "amqpCommand",
+      "type": "dataflow",
+      "config": {
+        "executor": {
+          "executable": "/MD_v4_OMP/run-cmd-openmp.sh",
+          "args": [
+            "1000",
+            "0.5",
+            "0.5"
+          ]
+        }
+      },
+      "ins": [
+        "start"
+      ],
+      "outs": [
+        "{{ .FilenameOutArchived }}"
+      ]
+    },
+    {
+      "name": "make-movie",
+      "function": "amqpCommand",
+      "type": "dataflow",
+      "config": {
+        "executor": {
+          "executable": "/MD_v4_OMP/make-movie.sh",
+          "args": [
+            "{{ .FilenameOutArchived }}",
+            "{{ .FilenameOutVideo }}"
+          ]
+        }
+      },
+      "ins": [
+        "{{ .FilenameOutArchived }}"
+      ],
+      "outs": [
+        "{{ .FilenameOutVideo }}"
+      ]
+    }
+  ],
+  "ins": [
+    "{{ .FilenameOutArchived }}"
+  ],
+  "outs": [
+    "{{ .FilenameOutVideo }}"
+  ],
+  "signals": [
+    {
+      "name": "start",
+      "data": [
+        "start"
+      ]
+    },
+    {
+      "name": "{{ .FilenameOutArchived }}"
+    },
+    {
+      "name": "{{ .FilenameOutVideo }}"
+    }
+  ],
+  "ins": [
+    "start"
+  ],
+  "outs": [
+    "{{ .FilenameOutVideo }}"
+  ]
+}

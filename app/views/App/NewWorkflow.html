@@ -1,0 +1,28 @@
+{{set . "title" "Home"}}
+{{template "header.html" .}}
+
+<header class="jumbotron" style="background-color:#A9F16C">
+  <div class="container">
+    <div class="row">
+      <h1>It works!</h1>
+      <p></p>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="row">
+    <div class="span6">
+        Number of molecules: {{.number_of_molecules}}
+        </br>
+        Temperature: {{.temperature}}
+        </br>
+        End of simulation: {{.simulation_end_time}}
+        </br>
+        Status URL: {{.statusURL}}
+    </div>
+    <a href="/App/Index">back</a>
+  </div>
+</div>
+
+{{template "footer.html" .}}
