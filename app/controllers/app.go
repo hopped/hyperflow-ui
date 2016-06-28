@@ -108,12 +108,12 @@ func (c App) NewWorkflow(
             // number of molecules
             strNumOfMolecules := strconv.FormatUint(uint64(number_of_molecules), 10)
             workflowDescription.Processes[i].Config.Executor.Args[0] = strNumOfMolecules
-            // temperature
-            strTemperature := strconv.FormatInt(int64(temperature), 10)
-            workflowDescription.Processes[i].Config.Executor.Args[1] = strTemperature
             // simulation end time
             strSimulationEndTime := strconv.FormatFloat(float64(simulation_end_time), 'f', -1, 64)
-            workflowDescription.Processes[i].Config.Executor.Args[2] = strSimulationEndTime
+            workflowDescription.Processes[i].Config.Executor.Args[1] = strSimulationEndTime
+            // temperature
+            strTemperature := strconv.FormatInt(int64(temperature), 10)
+            workflowDescription.Processes[i].Config.Executor.Args[2] = strTemperature
             // append output filename
             workflowDescription.Processes[i].Config.Executor.Args = append(workflowDescription.Processes[i].Config.Executor.Args, f.FilenameOutArchived)
         }
