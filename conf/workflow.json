@@ -42,12 +42,6 @@
       ]
     }
   ],
-  "ins": [
-    "{{ .FilenameOutArchived }}"
-  ],
-  "outs": [
-    "{{ .FilenameOutVideo }}"
-  ],
   "signals": [
     {
       "name": "start",
