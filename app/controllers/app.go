@@ -4,6 +4,7 @@ import (
     "bytes"
     "encoding/json"
     "github.com/revel/revel"
+    "github.com/revel/revel/cache"
     "strings"
     "strconv"
     "text/template"
@@ -61,6 +62,14 @@ type ExecutorType struct {
 type Filenames struct {
     FilenameOutArchived string
     FilenameOutVideo string
+}
+
+type Experiment struct {
+    ID          string
+    Name        string
+    Status      string
+    Artifacts   string
+    Workflow    workflowObject
 }
 
 func (c App) NewWorkflow(
@@ -149,24 +158,56 @@ func (c App) NewWorkflow(
     req, err := http.NewRequest("POST", defaultBaseUrl, bytes.NewBuffer(b))
     req.Header.Set("Content-Type", mediaType)
 
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        panic(err)
-    }
-    defer resp.Body.Close()
+    //client := &http.Client{}
+    //resp, err := client.Do(req)
+    //if err != nil {
+    //    panic(err)
+    //}
+    //defer resp.Body.Close()
 
     // status CREATED is expected
     statusURL := ""
-    if resp.StatusCode != http.StatusCreated {
-        panic(resp)
-    } else {
-        location, err := resp.Location()
-        if err != nil {
-            panic(err)
-        }
-        statusURL = location.String()
+    //if resp.StatusCode != http.StatusCreated {
+    //    panic(resp)
+    //} else {
+    //    location, err := resp.Location()
+    //    if err != nil {
+    //        //panic(err)
+    //    }
+    //    statusURL = location.String()
+    //}
+
+    //var cache = NewRedisCache("127.0.0.1:6379", "default", cache.FOREVER)
+    var newExperiment Experiment
+    var experimentIds []string
+    if err := cache.Get("experiment_ids", &experimentIds); err != nil {
+        // no data, empty slice
+    }
+    newExperiment.ID = strconv.FormatInt(int64(temperature), 10)
+    newExperiment.Name = "Foobar"
+    newExperiment.Status = "Running"
+    newExperiment.Artifacts = "none"
+    newExperiment.Workflow = workflowDescription
+    if err := cache.Add(newExperiment.ID, newExperiment, time.Minute); err == nil {
+        // new experiment
+        experimentIds = append([]string{ newExperiment.ID }, experimentIds...)
+        cache.Set("experiment_ids", experimentIds, time.Minute)
     }
 
-    return c.Render(number_of_molecules, temperature, simulation_end_time, statusURL)
+    type ExperimentList []Experiment
+    var myExperiments ExperimentList
+    if g, err := cache.GetMulti(experimentIds...); err == nil {
+        var oldExperiment Experiment
+        for _, value := range experimentIds {
+            if err := g.Get(value, &oldExperiment); err == nil {
+                myExperiments = append(myExperiments, oldExperiment)
+            }
+        }
+    }
+
+    c.RenderArgs["simulation_end_time"] = simulation_end_time
+    c.RenderArgs["temperature"] = temperature
+    c.RenderArgs["statusURL"] = statusURL
+    c.RenderArgs["myExperiments"] = myExperiments
+    return c.RenderTemplate("App/Index.html")
 }
