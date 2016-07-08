@@ -4,6 +4,8 @@
 
 module:testrunner
 
+module:jobs
+
 GET     /                                       App.Index
 
 # Ignore favicon requests
@@ -14,3 +16,4 @@ GET     /public/*filepath                       Static.Serve("public")
 
 # Catch all
 *       /:controller/:action                    :controller.:action
+

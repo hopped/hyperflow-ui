@@ -1,5 +1,25 @@
   {{if eq .RunMode "dev"}}
     {{template "debug.html" .}}
   {{end}}
+
+<script>
+  (function worker() {
+    $.ajax({
+      url: '/App/UpdateExperiment?s3Resource={{.s3_URL}}',
+	  type: 'GET',
+	  dataType: 'json'
+    })
+    .done(function(response) {
+      alert(response);
+      setTimeout(worker, 10000);
+    })
+    .fail(function(xhr, status, error) {
+      alert(error);
+      alert("{{.s3_URL}}")
+	  setTimeout(worker, 10000);
+    })
+  })();
+</script>
+
   </body>
 </html>
