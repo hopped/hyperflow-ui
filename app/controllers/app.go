@@ -2,11 +2,9 @@ package controllers
 
 import (
     "bytes"
-//    "github.com/robfig/cron"
     "encoding/json"
     "github.com/revel/revel"
     "github.com/revel/revel/cache"
-//    "github.com/revel/modules/jobs/app/jobs"
     "strings"
     "strconv"
     "text/template"
@@ -71,6 +69,8 @@ type Experiment struct {
     Name        string
     Status      string
     Artifacts   string
+    Tgz         string
+    Avi         string
     Workflow    WorkflowObject
 }
 
@@ -179,7 +179,6 @@ func (c App) NewWorkflow(
         statusURL = location.String()
     }
 
-    c.RenderArgs["status"] = "n/a"
     c.RenderArgs["filenames"] = f
     c.RenderArgs["simulation_end_time"] = simulation_end_time
     c.RenderArgs["temperature"] = temperature
@@ -189,7 +188,6 @@ func (c App) NewWorkflow(
 }
 
 func (c App) CreateExperimentsTable() revel.Result {
-    //var cache = NewRedisCache("127.0.0.1:6379", "default", cache.FOREVER)
     var newExperiment Experiment
     var experimentIds []string
     if err := cache.Get("experiment_ids", &experimentIds); err != nil {
@@ -202,7 +200,9 @@ func (c App) CreateExperimentsTable() revel.Result {
     newExperiment.ID = strconv.FormatInt(int64(temperature), 10)
     newExperiment.Name = "Foobar"
     newExperiment.Status = "Running"
-    newExperiment.Artifacts = "none"
+    filenames := c.RenderArgs["filenames"].(Filenames)
+    newExperiment.Tgz = filenames.FilenameOutArchived
+    newExperiment.Avi = filenames.FilenameOutVideo
     newExperiment.Workflow = c.RenderArgs["workflow"].(WorkflowObject)
     if err := cache.Add(newExperiment.ID, newExperiment, time.Minute); err == nil {
         // new experiment
@@ -221,62 +221,34 @@ func (c App) CreateExperimentsTable() revel.Result {
         }
     }
 
-//    mycron := cron.New()
-//    mycron.AddFunc("@every 5s", App.Run(c))
-//    mycron.Start()
+    // provide S3 base url
+    s3_region := revel.Config.StringDefault("aws.s3.region", "eu-west-1")
+    s3_bucket := revel.Config.StringDefault("aws.s3.bucket", "paasage-bucket")
+    s3_path := revel.Config.StringDefault("aws.s3.path", "results/")
+    s3_base := "http://s3." + s3_region + ".amazonaws.com/" + s3_bucket + "/" + s3_path
 
-    s3URL := "http://s3.eu-central-1.amazonaws.com/paasage-md-bucket/results/"
-
-    if c.RenderArgs["filenames"] == nil {
-        return nil
-    }
-
-    filenames := c.RenderArgs["filenames"].(Filenames)
-    s3URL += filenames.FilenameOutArchived
-	c.RenderArgs["s3_URL"] = s3URL
+    c.RenderArgs["s3_base"] = s3_base
 	c.RenderArgs["myExperiments"] = myExperiments
+
     return c.RenderTemplate("App/Index.html")
 }
 
-//type UpdateExperimentStatus struct {
-   // empty
-//}
+type JsonMessage struct {
+    Status string `json:"status,omitempty"`
+    Error  string `json:"error,omitempty"`
+}
 
 func (c App) UpdateExperiment(s3Resource string) revel.Result {
     if s3Resource == "" {
-		return c.RenderJson("{ 'hello': 'empty' }");
+        data := JsonMessage{Error: "n/a"}
+        return c.RenderJson(data)
     }
-    status := "n/a"
+
     response, err := http.Get(s3Resource)
     if err == nil && response.StatusCode == 200 {
-        status = "available"
+        return c.RenderJson(JsonMessage{Status: "Finished"})
+    } else {
+        return c.RenderJson(JsonMessage{Status: "Running"})
     }
-
-    return c.RenderJson("{ 'hello': " + status + "' }");
 }
 
-func (c App) Run() revel.Result {
-    s3URL := "http://s3.eu-central-1.amazonaws.com/paasage-md-bucket/results/"
-
-    if c.RenderArgs["filenames"] == nil {
-        return nil
-    }
-
-    filenames := c.RenderArgs["filenames"].(Filenames)
-    s3URL += filenames.FilenameOutArchived
-
-    status := "n/a"
-    for {
-        if response,_ := http.Get(s3URL); response.StatusCode == 200 {
-            status = "available"
-            break
-        }
-        time.Sleep(5 * time.Second)
-    }
-
-    c.RenderArgs["status"] = status
-
-
-   // c.RenderArgs["myExperiments"] = myExperiments
-    return c.RenderTemplate("App/Index.html")
-}

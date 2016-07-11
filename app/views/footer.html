@@ -3,22 +3,54 @@
   {{end}}
 
 <script>
-  (function worker() {
+function worker(element, url) {
+    console.log(url);
     $.ajax({
-      url: '/App/UpdateExperiment?s3Resource={{.s3_URL}}',
-	  type: 'GET',
-	  dataType: 'json'
+      url: '/App/UpdateExperiment?s3Resource=' + url,
+      type: 'GET',
+      dataType: 'json',
     })
     .done(function(response) {
-      alert(response);
-      setTimeout(worker, 10000);
+      var status = 'Running';
+      if (response.hasOwnProperty('status')) {
+        if (response.status == 'Finished') {
+            if (url.match('avi$') == 'avi') {
+                element.eq(2).html('Finished');
+                var link = "<a href='" + url + "'>avi</a>";
+                var prev = element.eq(3).html();
+                var new_html = prev.replace(/avi/g, link);
+                element.eq(3).html(new_html);
+            } else {
+                var link = "<a href='" + url + "'>tgz</a>"
+                var prev = element.eq(3).html();
+                var new_html = prev.replace(/tgz/g, link);
+                element.eq(3).html(new_html);
+            }
+            return;
+        }
+      }
+      setTimeout(worker, 10000, element, url);
     })
     .fail(function(xhr, status, error) {
-      alert(error);
-      alert("{{.s3_URL}}")
-	  setTimeout(worker, 10000);
+      setTimeout(worker, 10000, element, url);
     })
-  })();
+}
+
+(function update() {
+  $('#experiments > tbody > tr').each(function() {
+    var $tds = $(this).find('td'),
+      tgz = $tds.eq(4).text(),
+      avi = $tds.eq(5).text(),
+      url = '';
+    if ({{.s3_base}}.match('/$') == '/') {
+      url = {{.s3_base}};
+    } else {
+      url = {{.s3_base}} + '/';
+    }
+    worker($tds, url + tgz);
+    worker($tds, url + avi);
+  });
+})();
 </script>
 
   </body>
