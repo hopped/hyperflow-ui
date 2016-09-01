@@ -5,9 +5,10 @@
             <table id="experiments" class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Experiment</th>
-                        <th>Status</th>
+                        <th>Date</th>
+                        <th>#Molecules</th>
+                        <th>Temperature</th>
+                        <th>Simulation Time</th>
                         <th>Artifacts</th>
                         <td style="display:none;">{{.statusURL}}</th>
                     </tr>
@@ -15,9 +16,10 @@
                 <tbody>
                     {{range .myExperiments}}
                         <tr class="active">
-                            <td>{{.ID}}</td>
-                            <td>{{.Name}}</td>
-                            <td>{{.Status}}</td>
+                            <td>{{.Stamp}}</td>
+                            <td>{{.Molecules}}</td>
+                            <td>{{.Temperature}}</td>
+                            <td>{{.SimulationTime}}</td>
                             <td>( tgz | avi )</td>
                             <td style="display:none;">{{.Tgz}}</td>
                             <td style="display:none;">{{.Avi}}</td>

@@ -26,6 +26,9 @@ type App struct {
 }
 
 func (c App) Index() revel.Result {
+    c.RenderArgs["molecules"] = strconv.FormatUint(uint64(1000), 10)
+    c.RenderArgs["temperature"] = strconv.FormatInt(int64(85), 10)
+    c.RenderArgs["simulation_end_time"] = strconv.FormatFloat(float64(5.5), 'f', -1, 64)
 	return c.Render()
 }
 
@@ -65,13 +68,15 @@ type Filenames struct {
 }
 
 type Experiment struct {
-    ID          string
-    Name        string
-    Status      string
-    Artifacts   string
-    Tgz         string
-    Avi         string
-    Workflow    WorkflowObject
+    Stamp           string
+    Molecules       string
+    Temperature     string
+    SimulationTime  string
+    Status          string
+    Artifacts       string
+    Tgz             string
+    Avi             string
+    Workflow        WorkflowObject
 }
 
 func (c App) NewWorkflow(
@@ -170,17 +175,22 @@ func (c App) NewWorkflow(
     // status CREATED is expected
     statusURL := ""
     if resp.StatusCode != http.StatusCreated {
-        panic(resp)
+        //panic(resp)
     } else {
         location, err := resp.Location()
         if err != nil {
-            panic(err)
+            //panic(err)
         }
         statusURL = location.String()
     }
 
+    timestamp := time.Now()
+    timestamp_str := timestamp.Format(time.Stamp)
+
     c.RenderArgs["filenames"] = f
     c.RenderArgs["simulation_end_time"] = simulation_end_time
+    c.RenderArgs["molecules"] = number_of_molecules
+    c.RenderArgs["timestamp"] = timestamp_str
     c.RenderArgs["temperature"] = temperature
     c.RenderArgs["statusURL"] = statusURL
     c.RenderArgs["workflow"] = workflowDescription
@@ -193,21 +203,27 @@ func (c App) CreateExperimentsTable() revel.Result {
     if err := cache.Get("experiment_ids", &experimentIds); err != nil {
         // no data, empty slice
     }
-    if c.RenderArgs["temperature"] == nil {
-        return nil
-    }
-    temperature := c.RenderArgs["temperature"].(int)
-    newExperiment.ID = strconv.FormatInt(int64(temperature), 10)
-    newExperiment.Name = "Foobar"
-    newExperiment.Status = "Running"
-    filenames := c.RenderArgs["filenames"].(Filenames)
-    newExperiment.Tgz = filenames.FilenameOutArchived
-    newExperiment.Avi = filenames.FilenameOutVideo
-    newExperiment.Workflow = c.RenderArgs["workflow"].(WorkflowObject)
-    if err := cache.Add(newExperiment.ID, newExperiment, time.Minute); err == nil {
-        // new experiment
-        experimentIds = append([]string{ newExperiment.ID }, experimentIds...)
-        cache.Set("experiment_ids", experimentIds, time.Minute)
+    if c.RenderArgs["timestamp"] != nil {
+        temperature := c.RenderArgs["temperature"].(int)
+        molecules := c.RenderArgs["molecules"].(uint)
+        simulation_end_time := c.RenderArgs["simulation_end_time"].(float32)
+
+        newExperiment.Stamp = c.RenderArgs["timestamp"].(string)
+        newExperiment.Temperature = strconv.FormatInt(int64(temperature), 10)
+        newExperiment.Molecules = strconv.FormatInt(int64(molecules), 10)
+        newExperiment.SimulationTime = strconv.FormatFloat(float64(simulation_end_time), 'f', -1, 64)
+        newExperiment.Status = "Running"
+        filenames := c.RenderArgs["filenames"].(Filenames)
+        newExperiment.Tgz = filenames.FilenameOutArchived
+        newExperiment.Avi = filenames.FilenameOutVideo
+        newExperiment.Workflow = c.RenderArgs["workflow"].(WorkflowObject)
+
+        // cache.DEFAULT == one hour persistency
+        if err := cache.Add(newExperiment.Stamp, newExperiment, cache.DEFAULT); err == nil {
+            // new experiment
+            experimentIds = append([]string{ newExperiment.Stamp }, experimentIds...)
+            cache.Set("experiment_ids", experimentIds, cache.DEFAULT)
+        }
     }
 
     type ExperimentList []Experiment
@@ -222,7 +238,7 @@ func (c App) CreateExperimentsTable() revel.Result {
     }
 
     // provide S3 base url
-    s3_region := revel.Config.StringDefault("aws.s3.region", "eu-west-1")
+    s3_region := revel.Config.StringDefault("aws.s3.region", "eu-central-1")
     s3_bucket := revel.Config.StringDefault("aws.s3.bucket", "paasage-bucket")
     s3_path := revel.Config.StringDefault("aws.s3.path", "results/")
     s3_base := "http://s3." + s3_region + ".amazonaws.com/" + s3_bucket + "/" + s3_path
