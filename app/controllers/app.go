@@ -175,11 +175,11 @@ func (c App) NewWorkflow(
     // status CREATED is expected
     statusURL := ""
     if resp.StatusCode != http.StatusCreated {
-        //panic(resp)
+        panic(resp)
     } else {
         location, err := resp.Location()
         if err != nil {
-            //panic(err)
+            panic(err)
         }
         statusURL = location.String()
     }
