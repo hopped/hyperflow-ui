@@ -18,9 +18,9 @@
                     </div>
                     <div id="navbar" class="navbar-collapse collapse">
                         <ul class="nav navbar-nav navbar-right">
-                            <li class="active"><a href="/">Home</a></li>
+                            <li><a href="/">Home</a></li>
                             <li><a href="/about">About</a></li>
-                            <li><a href="/contact">Contact</a></li>
+                            <li class="active"><a href="#">Contact</a></li>
                         </ul>
                     </div>
                 </div>
@@ -31,12 +31,7 @@
     <div class="container">
         <div class="row">
             <div class="span6">
-                {{template "form.html" .}}
-            </div>
-        </div>
-        <div class="row">
-            <div class="span6">
-                {{template "experiments.html" .}}
+                {{template "contact.html" .}}
             </div>
         </div>
     </div>
