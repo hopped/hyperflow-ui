@@ -6,7 +6,7 @@
       "type": "dataflow",
       "config": {
         "executor": {
-          "executable": "/MD_v4_OMP/run-cmd-openmp.sh",
+          "executable": "/MD_v4_MPI/run-cmd.sh",
           "args": [
             "1000",
             "0.5",
@@ -27,7 +27,7 @@
       "type": "dataflow",
       "config": {
         "executor": {
-          "executable": "/MD_v4_OMP/make-movie.sh",
+          "executable": "/MD_v4_MPI/make-movie.sh",
           "args": [
             "{{ .FilenameOutArchived }}",
             "{{ .FilenameOutVideo }}"
