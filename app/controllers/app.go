@@ -163,6 +163,9 @@ func (c App) NewWorkflow(
         panic(err)
     }
     req, err := http.NewRequest("POST", defaultBaseUrl, bytes.NewBuffer(b))
+    if err != nil {
+        panic(err)
+    }
     req.Header.Set("Content-Type", mediaType)
 
     client := &http.Client{}
@@ -247,24 +250,5 @@ func (c App) CreateExperimentsTable() revel.Result {
 	c.RenderArgs["myExperiments"] = myExperiments
 
     return c.RenderTemplate("App/Index.html")
-}
-
-type JsonMessage struct {
-    Status string `json:"status,omitempty"`
-    Error  string `json:"error,omitempty"`
-}
-
-func (c App) UpdateExperiment(s3Resource string) revel.Result {
-    if s3Resource == "" {
-        data := JsonMessage{Error: "n/a"}
-        return c.RenderJson(data)
-    }
-
-    response, err := http.Get(s3Resource)
-    if err == nil && response.StatusCode == 200 {
-        return c.RenderJson(JsonMessage{Status: "Finished"})
-    } else {
-        return c.RenderJson(JsonMessage{Status: "Running"})
-    }
 }
 
