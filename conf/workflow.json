@@ -6,7 +6,7 @@
       "type": "dataflow",
       "config": {
         "executor": {
-          "executable": "/opt/shared/MD_v4_MPI/run-cmd.sh",
+          "executable": "/opt/shared/MD_v4_MPI/run-cmd.sh > run.log 2>&1",
           "args": [
             "1000",
             "0.5",
@@ -18,7 +18,7 @@
         "start"
       ],
       "outs": [
-        "{{ .FilenameOutArchived }}"
+        "/opt/shared/{{ .FilenameOutArchived }}"
       ]
     },
     {
@@ -27,18 +27,18 @@
       "type": "dataflow",
       "config": {
         "executor": {
-          "executable": "/opt/shared/MD_v4_MPI/make-movie.sh",
+          "executable": "/opt/shared/MD_v4_MPI/make-movie.sh > movie.log 2>&1",
           "args": [
-            "{{ .FilenameOutArchived }}",
-            "{{ .FilenameOutVideo }}"
+            "/opt/shared/{{ .FilenameOutArchived }}",
+            "/opt/shared/{{ .FilenameOutVideo }}"
           ]
         }
       },
       "ins": [
-        "{{ .FilenameOutArchived }}"
+        "/opt/shared/{{ .FilenameOutArchived }}"
       ],
       "outs": [
-        "{{ .FilenameOutVideo }}"
+        "/opt/shared/{{ .FilenameOutVideo }}"
       ]
     }
   ],
@@ -50,16 +50,16 @@
       ]
     },
     {
-      "name": "{{ .FilenameOutArchived }}"
+      "name": "/opt/shared/{{ .FilenameOutArchived }}"
     },
     {
-      "name": "{{ .FilenameOutVideo }}"
+      "name": "/opt/shared/{{ .FilenameOutVideo }}"
     }
   ],
   "ins": [
     "start"
   ],
   "outs": [
-    "{{ .FilenameOutVideo }}"
+    "/opt/shared/{{ .FilenameOutVideo }}"
   ]
 }
