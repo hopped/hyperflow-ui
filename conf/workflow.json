@@ -6,7 +6,7 @@
       "type": "dataflow",
       "config": {
         "executor": {
-          "executable": "/opt/shared/MD_v4_MPI/run-cmd.sh > run.log 2>&1",
+          "executable": "/opt/shared/MD_v4_MPI/run-cmd.sh",
           "args": [
             "1000",
             "0.5",
@@ -27,7 +27,7 @@
       "type": "dataflow",
       "config": {
         "executor": {
-          "executable": "/opt/shared/MD_v4_MPI/make-movie.sh > movie.log 2>&1",
+          "executable": "/opt/shared/MD_v4_MPI/make-movie.sh",
           "args": [
             "/opt/shared/{{ .FilenameOutArchived }}",
             "/opt/shared/{{ .FilenameOutVideo }}"
