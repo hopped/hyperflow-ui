@@ -164,6 +164,7 @@ func (c App) NewWorkflow(
     }
     req, err := http.NewRequest("POST", defaultBaseUrl, bytes.NewBuffer(b))
     req.Header.Set("Content-Type", mediaType)
+    req.Header.Set("Connection", "close")
 
     client := &http.Client{}
     resp, err := client.Do(req)
