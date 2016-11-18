@@ -30,10 +30,10 @@ function worker(element, url) {
             return;
         }
       }
-      setTimeout(worker, 10000, element, url);
+      setTimeout(worker, 30000, element, url);
     })
     .fail(function(xhr, status, error) {
-      setTimeout(worker, 10000, element, url);
+      setTimeout(worker, 30000, element, url);
     })
 }
 

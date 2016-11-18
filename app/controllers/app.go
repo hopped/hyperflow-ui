@@ -240,7 +240,7 @@ func (c App) CreateExperimentsTable() revel.Result {
 
     // provide S3 base url
     s3_region := revel.Config.StringDefault("aws.s3.region", "eu-central-1")
-    s3_bucket := revel.Config.StringDefault("aws.s3.bucket", "paasage-bucket")
+    s3_bucket := revel.Config.StringDefault("aws.s3.bucket", "paasage-md-bucket")
     s3_path := revel.Config.StringDefault("aws.s3.path", "results/")
     s3_base := "http://s3." + s3_region + ".amazonaws.com/" + s3_bucket + "/" + s3_path
 
