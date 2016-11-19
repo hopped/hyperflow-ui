@@ -1,0 +1,39 @@
+{{if .errors}}
+<div class="error">
+    <h2>Oops, please correct these errors</h2>
+    <ul>
+        {{range .errors}}
+            <li>{{.}}</li>
+        {{end}}
+    </ul>
+</div>
+{{end}}
+
+<div class="row">
+    <div class="col-xs-10 col-xs-offset-1 col-sm-10 col-sm-offset-1 col-md-6 col-md-offset-3">
+        <div class="well bs-component">
+<div class="hyperflow-ui-form">
+    <form action="/Extended/NewWorkflow" class="form-horizontal" method="POST">
+        <fieldset>
+            <legend>HyperFlow Job Description</legend>
+            <div class="form-group">
+                <div class="col-xs-8">
+                    <textarea style="width:155%;height:300px;" type="string"
+                           class="form-control"
+                           name="workflow"
+                           >{{.workflow}}</textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-8 col-xs-offset-4">
+                    <button type="reset" class="btn btn-default">Reset</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+        </div>
+    </div>
+</div>
+

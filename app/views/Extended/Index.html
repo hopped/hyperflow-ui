@@ -18,8 +18,8 @@
                     </div>
                     <div id="navbar" class="navbar-collapse collapse">
                         <ul class="nav navbar-nav navbar-right">
-                            <li class="active"><a href="/">Simple</a></li>
-                            <li><a href="/extended">Extended</a></li>
+                            <li><a href="/">Simple</a></li>
+                            <li class="active"><a href="/extended">Extended</a></li>
                         </ul>
                     </div>
                 </div>
@@ -30,14 +30,14 @@
     <div class="container">
         <div class="row">
             <div class="span6">
-                {{template "form.html" .}}
-            </div>
-        </div>
-        <div class="row">
-            <div class="span6">
-                {{template "experiments.html" .}}
+                {{template "form-extended.html" .}}
             </div>
         </div>
     </div>
 
-{{template "footer.html" .}}
+  {{if eq .RunMode "dev"}}
+    {{template "debug.html" .}}
+  {{end}}
+
+  </body>
+</html>

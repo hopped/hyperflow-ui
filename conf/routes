@@ -8,6 +8,7 @@ module:jobs
 
 GET     /                                       App.Index
 GET     /about                                  About.Index
+GET     /extended                               Extended.Index
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
