@@ -44,6 +44,7 @@ type ProcessesType struct {
     Function    string `json:"function"`
     Type        string `json:"type"`
     Config      ConfigType `json:"config"`
+    Limit       int `json:"firingLimit"`
     Ins         []string `json:"ins"`
     Outs        []string `json:"outs"`
 }
